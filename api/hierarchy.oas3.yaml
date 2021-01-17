@@ -1,0 +1,33 @@
+openapi: 3.0.0
+
+info:
+  version: '0.1.0'
+  title: Hierarchy Service
+
+paths:
+
+  /api/v1/nodes:
+    post:
+      summary: Create a node in hierarchy (a Folder or a Page)
+      operationId: createNode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Node'
+      responses:
+        '200':
+          description: Created node
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+
+components:
+  schemas:
+
+    Node:
+      properties:
+        id:
+          type: string
+          format: uuid

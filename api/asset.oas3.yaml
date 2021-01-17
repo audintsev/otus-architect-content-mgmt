@@ -1,0 +1,15 @@
+openapi: 3.0.0
+
+info:
+  version: '0.1.0'
+  title: Asset Service
+
+paths:
+
+  /api/v1/asset:
+    post:
+      summary: Add asset for a Node
+      operationId: addAsset
+      responses:
+        '200':
+          description: Asset added

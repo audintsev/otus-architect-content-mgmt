@@ -1,0 +1,15 @@
+openapi: 3.0.0
+
+info:
+  version: '0.1.0'
+  title: Editor Dashboard Service
+
+paths:
+
+  /api/v1/dashboard/search:
+    post:
+      summary: Search Pages and Assets
+      operationId: search
+      responses:
+        '200':
+          description: Search results

@@ -1,0 +1,15 @@
+openapi: 3.0.0
+
+info:
+  version: '0.1.0'
+  title: Content Service
+
+paths:
+
+  /api/v1/content:
+    put:
+      summary: Set content for a Page
+      operationId: putContent
+      responses:
+        '200':
+          description: Content set
