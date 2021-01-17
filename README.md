@@ -36,15 +36,22 @@ calculate aggregations (e.g. how many Pages found, how many Assets, who are top 
 
 ![Hierarchy Service](README.assets/1-hierarchy-service.png)
 
+[API documentation](https://audintsev.github.io/otus-architect-content-mgmt/?urls.primaryName=Hierarchy%20Service)
 
 ### Content Service
 
 ![Content Service](README.assets/2-content-service.png)
 
+[API documentation](https://audintsev.github.io/otus-architect-content-mgmt/?urls.primaryName=Content%20Service)
+
 ### Asset Service
 
 ![Asset Service](README.assets/3-asset-service.png)
 
+[API documentation](https://audintsev.github.io/otus-architect-content-mgmt/?urls.primaryName=Asset%20Service)
+
 ### Editor Dashboard Service
 
 ![Editor Dashboard Service](README.assets/4-editor-dashboard-service.png)
+
+[API documentation](https://audintsev.github.io/otus-architect-content-mgmt/?urls.primaryName=Editor%20Dashboard%20Service)
