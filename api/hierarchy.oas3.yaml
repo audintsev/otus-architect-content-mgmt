@@ -6,28 +6,174 @@ info:
 
 paths:
 
-  /api/v1/nodes:
+  /api/v1/pages/{nodeId}:
+    parameters:
+      - $ref: '#/components/parameters/nonRootNodeId'
+    get:
+      summary: Get a specific page by ID
+      operationId: getPage
+      responses:
+        '200':
+          description: Requested page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Page"
+
+  /api/v1/folders/{nodeId}:
+    parameters:
+      - $ref: '#/components/parameters/nodeId'
+    get:
+      summary: Get a specific folder by ID
+      operationId: getFolder
+      responses:
+        '200':
+          description: Requested folder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Folder"
+
+  /api/v1/folders/{nodeId}/landing:
+    parameters:
+      - $ref: '#/components/parameters/nodeId'
+    put:
+      summary: Manage landing page in the folder
+      description: Set specified child page as landing in the folder, mark the folder as having no landing page (if null)
+      operationId: setPageAsLanding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LandingRequest'
+      responses:
+        '200':
+          description: Specified page was set as landing in the folder
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Page"
+        '204':
+          description: The folder was marked as having no landing page
+
+  /api/v1/folders/{nodeId}/children:
+    parameters:
+      - $ref: '#/components/parameters/nodeId'
+    get:
+      summary: List items of a folder
+      operationId: listFolderItems
+      responses:
+        '200':
+          description: List of folder items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PageOrFolder"
     post:
-      summary: Create a node in hierarchy (a Folder or a Page)
+      summary: Create an item in the folder (a Folder or a Page)
       operationId: createNode
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Node'
+              $ref: '#/components/schemas/CreateRequest'
       responses:
         '200':
           description: Created node
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Node'
+                $ref: '#/components/schemas/PageOrFolder'
 
 components:
+  parameters:
+    nodeId:
+      name: nodeId
+      in: path
+      required: true
+      description: Node ID
+      schema:
+        $ref: '#/components/schemas/NodeId'
+
+    nonRootNodeId:
+      name: nodeId
+      in: path
+      required: true
+      description: Node ID
+      schema:
+        $ref: '#/components/schemas/NonRootNodeId'
+
   schemas:
 
-    Node:
+    NonRootNodeId:
+      type: string
+      format: uuid
+
+    RootNodeId:
+      type: string
+      enum: [root]
+
+    NodeId:
+      anyOf:
+        - $ref: "#/components/schemas/NonRootNodeId"
+        - $ref: "#/components/schemas/RootNodeId"
+
+    NodeType:
+      type: string
+      enum: [folder, page]
+
+    CreateRequest:
+      required:
+        - type
+        - name
       properties:
-        id:
+        type:
+          $ref: "#/components/schemas/NodeType"
+        name:
+          type: string
+
+    LandingRequest:
+      required:
+        - pageId
+      properties:
+        pageId:
           type: string
           format: uuid
+          nullable: true
+
+    Node:
+      required:
+        - id
+        - parentId
+        - type
+        - name
+      properties:
+        id:
+          $ref: "#/components/schemas/NodeId"
+        parentId:
+          $ref: "#/components/schemas/NodeId"
+        type:
+          $ref: "#/components/schemas/NodeType"
+        name:
+          type: string
+
+    Folder:
+      allOf:
+        - $ref: "#/components/schemas/Node"
+
+    Page:
+      allOf:
+        - $ref: "#/components/schemas/Node"
+        - type: object
+          required:
+            - landing
+          properties:
+            landing:
+              type: boolean
+
+    PageOrFolder:
+      anyOf:
+        - $ref: "#/components/schemas/Folder"
+        - $ref: "#/components/schemas/Page"
