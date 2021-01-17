@@ -1,45 +1,50 @@
 # Web Content and Asset management
 
-An Editor authors (creates, edits) a page with several assets being used on the page.
+## Domain description
 
-An asset is a file.
+Editors create pages, and arrange them in a tree hierarchy. Nodes of the tree are Folders and 
+Pages. One Page in a Folder may be designated as Landing.
 
-When an asset is used on a page, a "usage type" is associated with the usage. Some examples of usage types are:
-* a download link
-* a "open in new tab" link
-* embedded read-only view (for images or documents)
-* embedded thumbnail view (for images or documents)
-* embedded folder view (with configurable properties: start folder, whether descend navigation is allowed, whether ascend navigation is allowed, view mode: gallery, list, table + list of columns)
+Editors set and delete Content for a page (JSON). Content is versioned: each setContent/deleteContent creates a 
+Version in Version History. Editors may restore any Version in Version History (this creates a new Version).
 
-A given asset may be used on one page multiple times.
-A given asset may be used on many pages.
-A page may not use any assets.
-An asset may be not used on any pages.
+End Users (via client applications) consume Content. When retrieving Content, end users identify pages using
+Locations. A Location can be Page's ID or a Path in the Hierarchy (in the future custom human-friendly identifiers could
+be assigned for Pages).
 
-embed views are provided by "embed applications"
+Pages may use Assets - images, office documents, etc.
+An Asset always "belongs" to some node in the Hierarchy - a Folder or a Page.
+A Page "uses" assets: e.g. a download link may be inserted into a paragraph on a page, or an image of an Office document
+can be *embedded* into content of a Page. A given asset can be "used" on any Page - including Pages to which the
+asset doesn't "belong".
 
-Embed applications are pluggable, and each contributes a set of supported usages.
+Editors have access to Editor Dashboard, which facilitates efficient navigation experience by supporting a filtering/search
+experience. While browsing, editors are effectively executing search requests like. For example, find all Pages and Assets
+within these specified parent folders, such that their current version is created within a date range;
+calculate aggregations (e.g. how many Pages found, how many Assets, who are top modifiers, etc).
 
-Physically assets may be stored in various kinds of repositories (DropBox, Google Drive, whatever).
-A repository also contributes a set of natively supported usages, per asset type, e.g. repository A supports for images: embed and 'embed-thumbnail-800px'
-while repository B supports for images: 'embed', 'embed-thumbnail-maxxy', 'embed-thumbnail-maxx', 'embed-thumbnail-maxy',
-for *.docx documents: 'embed-view', 'embed-thumbnail-maxx'.
+## Suggested Breakdown of Microservices
 
-An embed application may support a usage in two ways:
-* either relying on the repository's native support
-* implement its own support (e.g. for embed-view usage for *.docx: transform docx to pdf + use pdf.js in browser)
+* **Hierarchy Service** manages Hierarchy of Folders and Pages
+* **Content Service** manages Content and Versioning of Pages; retrieves Content by Location (maintains mapping of
+  Path -> PageID to streamline retrieval of Content by Path)
+* **Asset Service** manages Assets belonging to "Pages" and "Folders"; maintains relationship between Pages and Assets
+  by tracking which Asset is "used" by which Page
+* **Editor Dashboard Service** powers the search/filtering-based browsing experience for Editors by maintaining a search index
 
-A repository may or may not support permission assignment and checking.
-If a repository does not support permission checking, it is accessed on behalf of a technical user (token).
-If a repository supports permission checking, it may still be accessed on behalf of a technical user (token),
-but it can also be accessed on behalf of the user (end user viewing the page, editor authoring the page).
-This is achieved by the asset mgmt application being registered in the backing repository as OAuth client.
+### Hierarchy Service
 
-If an asset is used on a page via an 'embed' application, and application is configured to access the asset in the backing
-repository with user's identity, and the access fails (no access token, expired access/refresh token), the
-'embed' application renders "login" button instead of the actual "embedded view", asking the user to login.
+![Hierarchy Service](README.assets/1-hierarchy-service.png)
 
-The 'asset mgmt' application also provides a way to check that the page is not broken: everybody who can access a page,
-can also access all assets on that page. This is achieved by accessing backing repositories in the background
-with a technical user (or authenticating with "client credentials" OAuth2 grant type, if backing repository supports that).
 
+### Content Service
+
+![Content Service](README.assets/2-content-service.png)
+
+### Asset Service
+
+![Asset Service](README.assets/3-asset-service.png)
+
+### Editor Dashboard Service
+
+![Editor Dashboard Service](README.assets/4-editor-dashboard-service.png)
