@@ -6,10 +6,208 @@ info:
 
 paths:
 
-  /api/v1/dashboard/search:
+  /api/v1/search:
     post:
       summary: Search Pages and Assets
       operationId: search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchRequest"
       responses:
         '200':
           description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+
+components:
+  schemas:
+    SearchRequest:
+      type: object
+      properties:
+        query:
+          type: object
+          properties:
+            text:
+              type: string
+              nullable: true
+            types:
+              type: array
+              items:
+                type: string
+                enum: [page, asset]
+            parents:
+              type: array
+              items:
+                type: string
+                format: uuid
+              nullable: true
+            createdBy:
+              type: array
+              items:
+                type: string
+              nullable: true
+            createdAt:
+              type: object
+              properties:
+                from:
+                  type: string
+                  format: 'date-time'
+                  nullable: true
+                to:
+                  type: string
+                  format: 'date-time'
+                  nullable: true
+              nullable: true
+            modifiedBy:
+              type: array
+              items:
+                type: string
+              nullable: true
+            modifiedAt:
+              type: object
+              properties:
+                from:
+                  type: string
+                  format: 'date-time'
+                  nullable: true
+                to:
+                  type: string
+                  format: 'date-time'
+                  nullable: true
+              nullable: true
+        ordering:
+          type: object
+          properties:
+            by:
+              type: string
+              enum: [relevance, name, createdAt, modifiedAt]
+            direction:
+              type: string
+              enum: [asc, desc]
+        aggregations:
+          type: object
+          properties:
+            parent:
+              type: array
+              items:
+                type: string
+                format: uuid
+            type:
+              type: boolean
+            createdBy:
+              type: boolean
+            updatedBy:
+              type: boolean
+        paging:
+          type: object
+          properties:
+            count:
+              type: number
+              format: int32
+            after:
+              type: string
+              format: uuid
+
+    SearchResponse:
+      type: object
+      properties:
+        hits:
+          type: array
+          items:
+            $ref: "#/components/schemas/Hit"
+        totalHits:
+          type: number
+          format: int64
+        aggregations:
+          type: object
+          properties:
+            parent:
+              $ref: "#/components/schemas/Buckets"
+            type:
+              $ref: "#/components/schemas/Buckets"
+            createdBy:
+              $ref: "#/components/schemas/Buckets"
+            updatedBy:
+              $ref: "#/components/schemas/Buckets"
+
+    Buckets:
+      type: array
+      items:
+        $ref: "#/components/schemas/Bucket"
+
+    Bucket:
+      type: object
+      properties:
+        key:
+          type: string
+        count:
+          type: number
+          format: int32
+
+    Node:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    VersionInfo:
+      type: object
+      properties:
+        version:
+          type: string
+          example: 2.8
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: 'date-time'
+        updatedBy:
+          type: string
+        updatedAt:
+          type: string
+          format: 'date-time'
+
+    PageHit:
+      allOf:
+        - $ref: "#/components/schemas/Node"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [page]
+            landing:
+              type: boolean
+            parents:
+              type: array
+              items:
+                $ref: "#/components/schemas/Node"
+        - $ref: "#/components/schemas/VersionInfo"
+
+    AssetHit:
+      allOf:
+        - type: object
+          properties:
+            uid:
+              type: string
+              format: uuid
+            name:
+              type: string
+            type:
+              type: string
+              enum: [asset]
+            fileSize:
+              type: integer
+              format: int64
+        - $ref: "#/components/schemas/VersionInfo"
+
+    Hit:
+      anyOf:
+        - $ref: "#/components/schemas/PageHit"
+        - $ref: "#/components/schemas/AssetHit"
