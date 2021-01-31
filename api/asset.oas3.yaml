@@ -6,10 +6,221 @@ info:
 
 paths:
 
-  /api/v1/asset:
+  /api/v1/store/{nodeId}:
+    parameters:
+      - $ref: '#/components/parameters/nodeId'
     post:
-      summary: Add asset for a Node
+      summary: Add asset to a Node's store
       operationId: addAsset
+      responses:
+        '201':
+          description: Asset added
+    get:
+      summary: List assets stored in a Node's store ('belonging' to the node)
+      operationId: listNodeAssets
       responses:
         '200':
           description: Asset added
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AssetInfo"
+
+  /api/v1/usages/{assetId}:
+    parameters:
+      - $ref: '#/components/parameters/assetId'
+    get:
+      summary: List usages of an asset
+      operationId: getAssetUsages
+      responses:
+        '200':
+          description: List of an asset's usages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AssetUsage"
+
+  /api/v1/asset/{assetId}:
+    parameters:
+      - $ref: '#/components/parameters/assetId'
+    get:
+      summary: Get info about an asset
+      operationId: getAssetInfo
+      responses:
+        '200':
+          description: Info about an asset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssetInfo"
+    put:
+      summary: Replace an asset
+      operationId: setAsset
+      responses:
+        '200':
+          description: Asset has been replaced
+    delete:
+      summary: Delete an asset
+      operationId: deleteAsset
+      responses:
+        '200':
+          description: Asset has been deleted
+
+  /api/v1/asset/{assetId}/download:
+    parameters:
+      - $ref: '#/components/parameters/assetId'
+    get:
+      summary: Download an asset
+      operationId: downloadAsset
+      responses:
+        '200':
+          description: Asset's binary
+        '404':
+          description: Asset not found
+
+  /api/v1/asset/{assetId}/view:
+    parameters:
+      - $ref: '#/components/parameters/assetId'
+    get:
+      summary: View asset in browser
+      operationId: viewAsset
+      responses:
+        '200':
+          description: Page that renders view of an asset
+        '204':
+          description: View is not supported for the asset
+        '404':
+          description: Asset not found
+
+  /api/v1/asset/{assetId}/edit:
+    parameters:
+      - $ref: '#/components/parameters/assetId'
+    get:
+      summary: Edit asset in browser
+      operationId: editAsset
+      responses:
+        '200':
+          description: Page that renders an in-browser editor for an asset
+        '204':
+          description: Editor is not supported for the asset
+        '404':
+          description: Asset not found
+
+  /api/v1/asset/{assetId}/thumbnail:
+    parameters:
+      - $ref: '#/components/parameters/assetId'
+    get:
+      summary: Thumbnail view of an asset
+      operationId: thumbnailAsset
+      responses:
+        '200':
+          description: Thumbnail rendition of an asset
+        '204':
+          description: Thumbnail is not supported for the asset
+        '404':
+          description: Asset not found
+
+  /api/v1/asset/{assetId}/embed:
+    parameters:
+      - $ref: '#/components/parameters/assetId'
+    get:
+      summary: Embeddable view of an asset
+      operationId: embedAsset
+      responses:
+        '200':
+          description: Thumbnail rendition of an asset (an image of HTML page intended for embedding)
+        '204':
+          description: Embed view is not supported for the asset
+        '404':
+          description: Asset not found
+
+components:
+  parameters:
+    nodeId:
+      name: nodeId
+      in: path
+      required: true
+      description: Node ID
+      schema:
+        $ref: '#/components/schemas/NodeId'
+
+    assetId:
+      name: assetId
+      in: path
+      required: true
+      description: Asset ID
+      schema:
+        $ref: '#/components/schemas/AssetId'
+
+  schemas:
+
+    NonRootNodeId:
+      type: string
+      format: uuid
+
+    RootNodeId:
+      type: string
+      enum: [root]
+
+    NodeId:
+      anyOf:
+        - $ref: "#/components/schemas/NonRootNodeId"
+        - $ref: "#/components/schemas/RootNodeId"
+
+    AssetId:
+      type: string
+      format: uuid
+
+    EmbedType:
+      type: string
+      enum: [image, iframe]
+
+    AssetInfo:
+      type: object
+      properties:
+        uid:
+          $ref: "#/components/schemas/AssetId"
+        name:
+          type: string
+        fileSize:
+          type: integer
+          format: int64
+        infoUrl:
+          type: string
+          example: "/asset/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        downloadUrl:
+          type: string
+          example: "/asset/3fa85f64-5717-4562-b3fc-2c963f66afa6/download"
+        viewUrl:
+          type: string
+          example: "/asset/3fa85f64-5717-4562-b3fc-2c963f66afa6/view"
+        editUrl:
+          type: string
+          example: "/asset/3fa85f64-5717-4562-b3fc-2c963f66afa6/edit"
+        thumbnailUrl:
+          type: string
+          example: "/asset/3fa85f64-5717-4562-b3fc-2c963f66afa6/thumbnail"
+        embed:
+          type: object
+          properties:
+            type:
+              $ref: "#/components/schemas/EmbedType"
+            url:
+              type: string
+              example: "/asset/3fa85f64-5717-4562-b3fc-2c963f66afa6/embed"
+
+    AssetUsageType:
+      type: string
+      enum: [download, view, edit, thumbnail, embed]
+
+    AssetUsage:
+      type: object
+      properties:
+        nodeId:
+          $ref: "#/components/schemas/NodeId"
+        usageType:
+          $ref: "#/components/schemas/AssetUsageType"
