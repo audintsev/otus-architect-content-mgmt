@@ -20,6 +20,44 @@ paths:
               schema:
                 $ref: "#/components/schemas/Page"
 
+  /api/v1/pages/{nodeId}/name:
+    parameters:
+      - $ref: '#/components/parameters/nonRootNodeId'
+    put:
+      summary: Rename a page
+      operationId: renamePage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenameRequest"
+      responses:
+        '200':
+          description: Page has been renamed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Page"
+
+  /api/v1/pages/{nodeId}/parent:
+    parameters:
+      - $ref: '#/components/parameters/nonRootNodeId'
+    put:
+      summary: Move a page
+      operationId: movePage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MoveRequest"
+      responses:
+        '200':
+          description: Page has been moved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Page"
+
   /api/v1/pages/{nodeId}/detailed:
     parameters:
       - $ref: '#/components/parameters/nonRootNodeId'
@@ -69,6 +107,44 @@ paths:
                 $ref: "#/components/schemas/Page"
         '204':
           description: The folder was marked as having no landing page
+
+  /api/v1/folders/{nodeId}/name:
+    parameters:
+      - $ref: '#/components/parameters/nonRootNodeId'
+    put:
+      summary: Rename a folder
+      operationId: renameFolder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenameRequest"
+      responses:
+        '200':
+          description: Folder has been renamed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Folder"
+
+  /api/v1/folders/{nodeId}/parent:
+    parameters:
+      - $ref: '#/components/parameters/nonRootNodeId'
+    put:
+      summary: Move a folder
+      operationId: moveFolder
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MoveRequest"
+      responses:
+        '200':
+          description: Folder has been moved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Folder"
 
   /api/v1/folders/{nodeId}/children:
     parameters:
@@ -156,6 +232,21 @@ components:
           type: string
           format: uuid
           nullable: true
+
+    RenameRequest:
+      required:
+        - value
+      properties:
+        value:
+          type: string
+
+    MoveRequest:
+      required:
+        - value
+      properties:
+        value:
+          type: string
+          format: uuid
 
     Node:
       required:
