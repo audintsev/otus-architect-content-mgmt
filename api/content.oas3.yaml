@@ -6,10 +6,146 @@ info:
 
 paths:
 
-  /api/v1/content:
-    put:
-      summary: Set content for a Page
+  /api/v1/content/{location}:
+    parameters:
+      - $ref: '#/components/parameters/location'
+    get:
+      summary: Get content for a Page by location
+      operationId: getContentByLocation
+      responses:
+        '200':
+          description: Content of the requested page
+        '204':
+          description: Requested page has no content
+        '404':
+          description: Requested page is not found
+
+  /api/v1/page/{pageId}/content:
+    parameters:
+      - $ref: '#/components/parameters/pageId'
+    post:
+      summary: Set content for a Page (create version)
       operationId: putContent
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              $ref: '#/components/schemas/PageContent'
       responses:
         '200':
           description: Content set
+    get:
+      summary: Get content of a Page by ID
+      operationId: getContent
+      responses:
+        '200':
+          description: Content of the requested page
+          content:
+            application/octet-stream:
+              schema:
+                $ref: "#/components/schemas/PageContent"
+        '204':
+          description: Requested page has no content
+        '404':
+          description: Requested page is not found
+
+  /api/v1/page/{pageId}/versions:
+    parameters:
+      - $ref: "#/components/parameters/pageId"
+    get:
+      summary: List versions of a page's content
+      operationId: getVersions
+      responses:
+        '200':
+          description: Versions of page's content
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VersionInfo"
+        '404':
+          description: Requested page is not found
+
+  /api/v1/page/{pageId}/versions/{versionNumber}/content:
+    parameters:
+      - $ref: "#/components/parameters/pageId"
+      - $ref: "#/components/parameters/versionNumber"
+    get:
+      summary: Get content of a specific version
+      operationId: getVersionContent
+      responses:
+        '200':
+          description: Content of a specific page's version
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/PageContent'
+        '404':
+          description: Requested page or version is not found
+
+  /api/v1/page/{pageId}/versions/{versionNumber}/restore:
+    parameters:
+      - $ref: "#/components/parameters/pageId"
+      - $ref: "#/components/parameters/versionNumber"
+    post:
+      summary: Retsore content of a page as of specified version
+      operationId: restoreVersionContent
+      responses:
+        '200':
+          description: Content has been restored as of specified version
+        '404':
+          description: Requested page or version is not found
+
+components:
+
+  parameters:
+    pageId:
+      name: pageId
+      in: path
+      required: true
+      description: Page ID
+      schema:
+        $ref: '#/components/schemas/PageId'
+
+    location:
+      name: location
+      example: /gadgets/phones/accessories/headsets/samsams/x564267hgw
+      in: path
+      required: true
+      description: Page's location, can be a UID, or a path in Hierarchy
+      schema:
+        type: string
+
+    versionNumber:
+      name: versionNumber
+      in: path
+      required: true
+      description: Version number
+      schema:
+        $ref: "#/components/schemas/VersionNumber"
+
+  schemas:
+
+    PageId:
+      type: string
+      format: uuid
+
+    PageContent:
+      type: string
+      format: binary
+
+    VersionNumber:
+      type: string
+      example: "2.3"
+
+    VersionInfo:
+      type: object
+      properties:
+        version:
+          $ref: "#/components/schemas/VersionNumber"
+        createdAt:
+          type: string
+          format: "date-time"
+        createdBy:
+          type: string
