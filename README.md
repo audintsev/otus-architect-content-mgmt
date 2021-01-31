@@ -26,11 +26,15 @@ calculate aggregations (e.g. how many Pages found, how many Assets, who are top 
 ## Suggested Breakdown of Microservices
 
 * **Hierarchy Service** manages Hierarchy of Folders and Pages
-* **Content Service** manages Content and Versioning of Pages; retrieves Content by Location (maintains mapping of
+* **Content Service** manages Page's Content and Content Versioning; retrieves Content by Location (maintains mapping of
   Path -> PageID to streamline retrieval of Content by Path)
 * **Asset Service** manages Assets belonging to "Pages" and "Folders"; maintains relationship between Pages and Assets
   by tracking which Asset is "used" by which Page
 * **Editor Dashboard Service** powers the search/filtering-based browsing experience for Editors by maintaining a search index
+
+Services communicate over Event Bus (event collaboration).
+
+![Architecture](README.assets/architecture.png)
 
 ### Hierarchy Service
 
